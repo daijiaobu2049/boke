@@ -2,13 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
+const mongoose = require('mongoose');
 
 const app = express();
 
 app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type']
+    origin: ['https://daijiaobu2049.github.io', 'http://localhost:5500'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
@@ -107,6 +108,13 @@ app.post('/api/verify-captcha', (req, res) => {
     captchas.delete(id);
     res.json({ valid: true });
 });
+
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('MongoDB connected'))
+.catch(err => console.error('MongoDB connection error:', err));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
