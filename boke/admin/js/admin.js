@@ -1,11 +1,11 @@
 // API 基础地址
-const API_BASE_URL = 'https://boke-sand.vercel.app/api';
+const API_BASE_URL = 'https://daijiaobu2049.github.io/boke/api';
 
 // 检查登录状态
 function checkAuth() {
     const token = localStorage.getItem('adminToken');
     if (!token) {
-        window.location.href = './login.html';
+        window.location.href = '/boke/admin/login.html';
     }
 }
 
@@ -165,5 +165,5 @@ async function deletePost(id) {
 // 退出登录
 function logout() {
     localStorage.removeItem('adminToken');
-    window.location.href = './login.html';
+    window.location.href = '/boke/admin/login.html';
 } 
