@@ -15,26 +15,34 @@ function generateCode() {
 
 // 发送验证码
 router.post('/send', async (req, res) => {
-    const { email } = req.body;
+    try {
+        const { email } = req.body;
+        console.log('收到发送验证码请求:', email);
 
-    // 生成验证码
-    const code = generateCode();
-    
-    // 存储验证码
-    verificationCodes.set(email, {
-        code,
-        timestamp: Date.now(),
-        attempts: 0
-    });
+        // 生成验证码
+        const code = generateCode();
+        console.log('生成的验证码:', code);
+        
+        // 存储验证码
+        verificationCodes.set(email, {
+            code,
+            timestamp: Date.now(),
+            attempts: 0
+        });
 
-    // 发送邮件
-    const sent = await sendVerificationEmail(email, code);
-    
-    if (sent) {
-        console.log(`验证码 ${code} 已发送到邮箱 ${email}`);
-        res.json({ message: '验证码已发送' });
-    } else {
-        res.status(500).json({ message: '发送验证码失败' });
+        // 发送邮件
+        const sent = await sendVerificationEmail(email, code);
+        
+        if (sent) {
+            console.log(`验证码 ${code} 已发送到邮箱 ${email}`);
+            res.json({ message: '验证码已发送' });
+        } else {
+            console.error('发送验证码失败');
+            res.status(500).json({ message: '发送验证码失败' });
+        }
+    } catch (error) {
+        console.error('处理验证码请求时出错:', error);
+        res.status(500).json({ message: '服务器错误' });
     }
 });
 

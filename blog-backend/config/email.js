@@ -2,10 +2,12 @@ const nodemailer = require('nodemailer');
 
 // 创建邮件传输器
 const transporter = nodemailer.createTransport({
-    service: 'qq',
+    host: 'smtp.qq.com',
+    port: 465,
+    secure: true,
     auth: {
-        user: '1914390514@qq.com',  // 您的QQ邮箱
-        pass: 'vinmdstetopdfbah'    // QQ邮箱的授权码
+        user: '1914390514@qq.com',
+        pass: 'vinmdstetopdfbah'
     }
 });
 
@@ -15,8 +17,13 @@ async function sendVerificationEmail(to, code) {
         console.log('开始发送邮件...');
         console.log('收件人:', to);
         console.log('验证码:', code);
-        await transporter.sendMail({
-            from: '"博客验证" <1914390514@qq.com>',  // 发件人
+
+        // 测试邮件配置
+        await transporter.verify();
+        console.log('邮件配置验证成功');
+
+        const mailOptions = {
+            from: '"博客验证" <1914390514@qq.com>',
             to: to,
             subject: '注册验证码',
             html: `
@@ -30,8 +37,10 @@ async function sendVerificationEmail(to, code) {
                     </p>
                 </div>
             `
-        });
-        console.log('邮件发送成功');
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('邮件发送成功:', info.messageId);
         return true;
     } catch (error) {
         console.error('邮件发送失败，详细错误:', error);
