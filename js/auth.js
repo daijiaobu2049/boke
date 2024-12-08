@@ -4,6 +4,97 @@ const users = JSON.parse(localStorage.getItem('users')) || [];
 // 当前登录用户
 let currentUser = JSON.parse(localStorage.getItem('currentUser'));
 
+// 存储验证码
+let verificationCodes = {};
+
+// 生成验证码
+function generateCode() {
+    // 生成6位数字验证码
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+        code += Math.floor(Math.random() * 10);
+    }
+    return code;
+}
+
+// 发送验证码
+document.getElementById('sendCodeBtn').addEventListener('click', async function() {
+    const email = document.querySelector('input[name="email"]').value;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!email || !emailRegex.test(email)) {
+        alert('请输入正确的邮箱地址');
+        return;
+    }
+
+    try {
+        // 发送验证码请求
+        const response = await fetch('http://localhost:5000/api/verify/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert('验证码已发送到您的邮箱');
+            
+            // 禁用按钮60秒
+            this.disabled = true;
+            let countdown = 60;
+            this.textContent = `${countdown}秒后重试`;
+            
+            const timer = setInterval(() => {
+                countdown--;
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    this.disabled = false;
+                    this.textContent = '发送验证码';
+                } else {
+                    this.textContent = `${countdown}秒后重试`;
+                }
+            }, 1000);
+        } else {
+            alert(data.message);
+        }
+    } catch (error) {
+        alert('发送验证码失败，请稍后重试');
+    }
+});
+
+// 验证验证码
+function verifyCode(email, code) {
+    const verification = verificationCodes[email];
+    if (!verification) {
+        return { valid: false, message: '请先获取验证码' };
+    }
+
+    // 验证码5分钟内有效
+    if (Date.now() - verification.timestamp > 5 * 60 * 1000) {
+        delete verificationCodes[email];
+        return { valid: false, message: '验证码已过期，请重新获取' };
+    }
+
+    // 最多允许3次验证尝试
+    if (verification.attempts >= 3) {
+        delete verificationCodes[email];
+        return { valid: false, message: '验证次数过多，请重新获取验证码' };
+    }
+
+    verification.attempts++;
+
+    if (verification.code !== code) {
+        return { valid: false, message: '验证码错误' };
+    }
+
+    // 验证成功后删除验证码
+    delete verificationCodes[email];
+    return { valid: true };
+}
+
 // 更新导航栏显示
 function updateNavbar() {
     const authButtons = document.getElementById('auth-buttons');
@@ -31,6 +122,14 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
     const email = this.email.value;
     const password = this.password.value;
     const confirmPassword = this.confirmPassword.value;
+    const verifyCode = this.verifyCode.value;
+
+    // 验证验证码
+    const verification = verifyCode(email, verifyCode);
+    if (!verification.valid) {
+        alert(verification.message);
+        return;
+    }
 
     if (password !== confirmPassword) {
         alert('两次输入的密码不一致！');
@@ -78,6 +177,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
         bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
         this.reset();
         alert('登录成功！');
+        location.reload();
     } else {
         alert('用户名或密码错误！');
     }

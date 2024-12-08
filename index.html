@@ -187,7 +187,16 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">邮箱</label>
-                            <input type="email" class="form-control" name="email" required>
+                            <div class="input-group">
+                                <input type="email" class="form-control" name="email" required>
+                                <button type="button" class="btn btn-outline-primary" id="sendCodeBtn">
+                                    发送验证码
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">验证码</label>
+                            <input type="text" class="form-control" name="verifyCode" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">密码</label>

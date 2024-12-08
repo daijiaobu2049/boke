@@ -202,4 +202,14 @@ body {
     color: #2c3e50 !important;
     transform: translateY(-2px);
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* 验证码按钮样式 */
+#sendCodeBtn {
+    white-space: nowrap;
+    min-width: 120px;
+}
+
+#sendCodeBtn:disabled {
+    cursor: not-allowed;
 } 
