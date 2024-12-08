@@ -1,3 +1,6 @@
+// API 基础地址
+const API_BASE_URL = 'https://boke-sand.vercel.app/api';
+
 // Markdown 编辑器实例
 let editor;
 // 当前编辑的文章 ID
@@ -32,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // 加载文章列表
 async function loadPosts() {
     try {
-        const response = await fetch('/api/posts');
+        const response = await fetch(`${API_BASE_URL}/posts`);
         const posts = await response.json();
         
         const postsHtml = posts.map(post => `
@@ -88,7 +91,7 @@ async function savePost() {
     };
 
     try {
-        const url = currentPostId ? `/api/posts/${currentPostId}` : '/api/posts';
+        const url = currentPostId ? `${API_BASE_URL}/posts/${currentPostId}` : `${API_BASE_URL}/posts`;
         const method = currentPostId ? 'PUT' : 'POST';
         
         const response = await fetch(url, {
@@ -114,7 +117,7 @@ async function savePost() {
 // 编辑文章
 async function editPost(id) {
     try {
-        const response = await fetch(`/api/posts/${id}`);
+        const response = await fetch(`${API_BASE_URL}/posts/${id}`);
         const post = await response.json();
         showPostModal(post);
     } catch (error) {
@@ -128,7 +131,7 @@ async function deletePost(id) {
     if (!confirm('确定要删除这篇文章吗？')) return;
 
     try {
-        const response = await fetch(`/api/posts/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/posts/${id}`, {
             method: 'DELETE'
         });
 
