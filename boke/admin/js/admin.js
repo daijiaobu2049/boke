@@ -46,7 +46,11 @@ document.addEventListener('DOMContentLoaded', () => {
 // 加载文章列表
 async function loadPosts() {
     try {
-        const response = await fetch(`${API_BASE_URL}/posts`);
+        const response = await fetch(`${API_BASE_URL}/posts`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+            }
+        });
         const posts = await response.json();
         
         const postsHtml = posts.map(post => `
@@ -108,7 +112,8 @@ async function savePost() {
         const response = await fetch(url, {
             method,
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
             },
             body: JSON.stringify(postData)
         });
@@ -160,5 +165,5 @@ async function deletePost(id) {
 // 退出登录
 function logout() {
     localStorage.removeItem('adminToken');
-    window.location.href = 'login.html';
+    window.location.href = '/boke/admin/login.html';
 } 
