@@ -6,8 +6,8 @@ const transporter = nodemailer.createTransport({
     port: 465,
     secure: true,
     auth: {
-        user: '1914390514@qq.com',
-        pass: 'vinmdstetopdfbah'
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
     }
 });
 
@@ -23,7 +23,7 @@ async function sendVerificationEmail(to, code) {
         console.log('邮件配置验证成功');
 
         const mailOptions = {
-            from: '"博客验证" <1914390514@qq.com>',
+            from: `"博客验证" <${process.env.SMTP_USER}>`,
             to: to,
             subject: '注册验证码',
             html: `

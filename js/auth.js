@@ -29,7 +29,7 @@ document.getElementById('sendCodeBtn').addEventListener('click', async function(
 
     try {
         // 发送验证码请求
-        const response = await fetch('http://localhost:5000/api/verify/send', {
+        const response = await fetch('https://boke-api.vercel.app/api/verify/send', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
