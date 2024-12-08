@@ -10,7 +10,7 @@ let currentCaptchaId = null;
 async function refreshCaptcha() {
     try {
         console.log('正在获取验证码...');
-        const response = await fetch('https://boke-api.vercel.app/api/captcha');
+        const response = await fetch('https://boke-sand.vercel.app/api/captcha');
         const data = await response.json();
         console.log('获取到验证码:', data);
         currentCaptchaId = data.id;
@@ -57,7 +57,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
 
     // 验证验证码
     try {
-        const response = await fetch('https://boke-api.vercel.app/api/verify-captcha', {
+        const response = await fetch('https://boke-sand.vercel.app/api/verify-captcha', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
