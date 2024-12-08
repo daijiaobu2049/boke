@@ -1,6 +1,14 @@
 // API 基础地址
 const API_BASE_URL = 'https://boke-sand.vercel.app/api';
 
+// 检查登录状态
+function checkAuth() {
+    const token = localStorage.getItem('adminToken');
+    if (!token) {
+        window.location.href = 'login.html';
+    }
+}
+
 // Markdown 编辑器实例
 let editor;
 // 当前编辑的文章 ID
@@ -8,6 +16,9 @@ let currentPostId = null;
 
 // 初始化编辑器
 document.addEventListener('DOMContentLoaded', () => {
+    // 检查登录状态
+    checkAuth();
+
     editor = new EasyMDE({
         element: document.getElementById('editor'),
         spellChecker: false,
@@ -144,4 +155,10 @@ async function deletePost(id) {
         console.error('删除文章失败:', error);
         alert('删除文章失败');
     }
+}
+
+// 退出登录
+function logout() {
+    localStorage.removeItem('adminToken');
+    window.location.href = 'login.html';
 } 
