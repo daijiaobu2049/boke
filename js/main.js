@@ -81,39 +81,10 @@ function loadPosts() {
     });
 }
 
-// 检查登录状态
-function checkLogin() {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (!currentUser) {
-        // 如果未登录，隐藏内容并显示登录提示
-        document.querySelector('.hero-carousel').style.display = 'none';
-        document.querySelector('main').innerHTML = `
-            <div class="container text-center py-5">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h2 class="mb-4">请先登录</h2>
-                        <p class="mb-4">登录后即可查看博客内容</p>
-                        <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#loginModal">
-                            <i class="fas fa-sign-in-alt"></i> 登录
-                        </button>
-                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#registerModal">
-                            <i class="fas fa-user-plus"></i> 注册
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-        return false;
-    }
-    return true;
-}
-
 // 页面加载完成后执行
 document.addEventListener('DOMContentLoaded', () => {
-    if (checkLogin()) {
-        loadPosts();
-        updatePersonalInfo();
-    }
+    loadPosts();
+    updatePersonalInfo();
 });
 
 // 添加滚动动画

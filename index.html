@@ -39,16 +39,6 @@
                             <i class="fab fa-github"></i> GitHub
                         </a>
                     </li>
-                    <li class="nav-item" id="auth-buttons">
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">
-                            <i class="fas fa-sign-in-alt"></i> 登录
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#registerModal">
-                            <i class="fas fa-user-plus"></i> 注册
-                        </a>
-                    </li>
                 </ul>
             </div>
         </div>
@@ -144,73 +134,5 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- 自定义脚本 -->
     <script src="js/main.js"></script>
-    <script src="js/auth.js"></script>
-
-    <!-- 登录模态框 -->
-    <div class="modal fade" id="loginModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">登录</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="loginForm">
-                        <div class="mb-3">
-                            <label class="form-label">用户名</label>
-                            <input type="text" class="form-control" name="username" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">密码</label>
-                            <input type="password" class="form-control" name="password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">登录</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 注册模态框 -->
-    <div class="modal fade" id="registerModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">注册</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="registerForm">
-                        <div class="mb-3">
-                            <label class="form-label">用户名</label>
-                            <input type="text" class="form-control" name="username" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">邮箱</label>
-                            <input type="email" class="form-control" name="email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">验证码</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" name="captcha" required>
-                                <div class="input-group-append">
-                                    <span id="captchaText" class="input-group-text" style="min-width: 80px; text-align: center; cursor: pointer; font-family: monospace; font-size: 1.2em; font-weight: bold;"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">密码</label>
-                            <input type="password" class="form-control" name="password" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">确认密码</label>
-                            <input type="password" class="form-control" name="confirmPassword" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">注册</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 </body>
 </html> 
