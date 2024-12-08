@@ -4,95 +4,26 @@ const users = JSON.parse(localStorage.getItem('users')) || [];
 // 当前登录用户
 let currentUser = JSON.parse(localStorage.getItem('currentUser'));
 
-// 存储验证码
-let verificationCodes = {};
+// 获取验证码
+let currentCaptchaId = null;
 
-// 生成验证码
-function generateCode() {
-    // 生成6位数字验证码
-    let code = '';
-    for (let i = 0; i < 6; i++) {
-        code += Math.floor(Math.random() * 10);
-    }
-    return code;
-}
-
-// 发送验证码
-document.getElementById('sendCodeBtn').addEventListener('click', async function() {
-    const email = document.querySelector('input[name="email"]').value;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
-    if (!email || !emailRegex.test(email)) {
-        alert('请输入正确的邮箱地址');
-        return;
-    }
-
+async function refreshCaptcha() {
     try {
-        // 发送验证码请求
-        const response = await fetch('https://boke-api.vercel.app/api/verify/send', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email })
-        });
-
+        console.log('正在获取验证码...');
+        const response = await fetch('https://boke-api.vercel.app/api/captcha');
         const data = await response.json();
-        
-        if (response.ok) {
-            alert('验证码已发送到您的邮箱');
-            
-            // 禁用按钮60秒
-            this.disabled = true;
-            let countdown = 60;
-            this.textContent = `${countdown}秒后重试`;
-            
-            const timer = setInterval(() => {
-                countdown--;
-                if (countdown <= 0) {
-                    clearInterval(timer);
-                    this.disabled = false;
-                    this.textContent = '发送验证码';
-                } else {
-                    this.textContent = `${countdown}秒后重试`;
-                }
-            }, 1000);
+        console.log('获取到验证码:', data);
+        currentCaptchaId = data.id;
+        const captchaElement = document.getElementById('captchaText');
+        if (captchaElement) {
+            captchaElement.textContent = data.code;
+            console.log('验证码已显示');
         } else {
-            alert(data.message);
+            console.error('找不到验证码显示元素');
         }
     } catch (error) {
-        alert('发送验证码失败，请稍后重试');
+        console.error('获取验证码失败:', error);
     }
-});
-
-// 验证验证码
-function verifyCode(email, code) {
-    const verification = verificationCodes[email];
-    if (!verification) {
-        return { valid: false, message: '请先获取验证码' };
-    }
-
-    // 验证码5分钟内有效
-    if (Date.now() - verification.timestamp > 5 * 60 * 1000) {
-        delete verificationCodes[email];
-        return { valid: false, message: '验证码已过期，请重新获取' };
-    }
-
-    // 最多允许3次验证尝试
-    if (verification.attempts >= 3) {
-        delete verificationCodes[email];
-        return { valid: false, message: '验证次数过多，请重新获取验证码' };
-    }
-
-    verification.attempts++;
-
-    if (verification.code !== code) {
-        return { valid: false, message: '验证码错误' };
-    }
-
-    // 验证成功后删除验证码
-    delete verificationCodes[email];
-    return { valid: true };
 }
 
 // 更新导航栏显示
@@ -115,50 +46,69 @@ function updateNavbar() {
 }
 
 // 注册功能
-document.getElementById('registerForm').addEventListener('submit', function(e) {
+document.getElementById('registerForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
     const username = this.username.value;
     const email = this.email.value;
     const password = this.password.value;
     const confirmPassword = this.confirmPassword.value;
-    const verifyCode = this.verifyCode.value;
+    const captchaCode = this.captcha.value;
 
     // 验证验证码
-    const verification = verifyCode(email, verifyCode);
-    if (!verification.valid) {
-        alert(verification.message);
-        return;
+    try {
+        const response = await fetch('https://boke-api.vercel.app/api/verify-captcha', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: currentCaptchaId,
+                code: captchaCode
+            })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            alert(data.message);
+            refreshCaptcha();
+            return;
+        }
+
+        // 验证码正确，继续注册流程
+        if (password !== confirmPassword) {
+            alert('两次输入的密码不一致！');
+            return;
+        }
+
+        if (users.some(user => user.username === username)) {
+            alert('用户名已存在！');
+            return;
+        }
+
+        if (users.some(user => user.email === email)) {
+            alert('邮箱已被注册！');
+            return;
+        }
+
+        const newUser = {
+            id: Date.now(),
+            username,
+            email,
+            password
+        };
+
+        users.push(newUser);
+        localStorage.setItem('users', JSON.stringify(users));
+        
+        alert('注册成功！');
+        bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
+        this.reset();
+        refreshCaptcha();
+    } catch (error) {
+        alert('验证失败，请重试');
+        refreshCaptcha();
     }
-
-    if (password !== confirmPassword) {
-        alert('两次输入的密码不一致！');
-        return;
-    }
-
-    if (users.some(user => user.username === username)) {
-        alert('用户名已存在！');
-        return;
-    }
-
-    if (users.some(user => user.email === email)) {
-        alert('邮箱已被注册！');
-        return;
-    }
-
-    const newUser = {
-        id: Date.now(),
-        username,
-        email,
-        password // 实际应用中应该加密存储
-    };
-
-    users.push(newUser);
-    localStorage.setItem('users', JSON.stringify(users));
-    
-    alert('注册成功！');
-    bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
-    this.reset();
 });
 
 // 登录功能
@@ -190,5 +140,14 @@ function logout() {
     location.reload();
 }
 
-// 页面加载时检查登录状态
-document.addEventListener('DOMContentLoaded', updateNavbar); 
+// 页面加载时初始化
+document.addEventListener('DOMContentLoaded', () => {
+    updateNavbar();
+    refreshCaptcha();
+    
+    // 添加验证码点击事件
+    const captchaElement = document.getElementById('captchaText');
+    if (captchaElement) {
+        captchaElement.addEventListener('click', refreshCaptcha);
+    }
+});

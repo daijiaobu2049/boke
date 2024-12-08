@@ -4,36 +4,84 @@ require('dotenv').config();
 
 const app = express();
 
-// 添加请求日志
-app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`, {
-        body: req.body,
-        headers: req.headers
-    });
-    next();
-});
-
+// 添加详细的 CORS 配置
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || 'https://daijiaobu2049.github.io',
-    credentials: true
+    origin: '*',  // 临时允许所有来源，方便调试
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type']
 }));
 app.use(express.json());
 
-// 路由
-app.use('/api/verify', require('./routes/verify'));
+// 存储验证码
+const captchas = new Map();
 
-// 错误处理中间件
-app.use((err, req, res, next) => {
-    console.error('[ERROR]', err);
-    res.status(500).json({ message: '服务器错误', error: err.message });
+// 生成验证码
+function generateCaptcha() {
+    const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let code = '';
+    for (let i = 0; i < 4; i++) {
+        code += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return code;
+}
+
+// 获取验证码
+app.get('/api/captcha', (req, res) => {
+    console.log('收到验证码请求');
+    const code = generateCaptcha();
+    const id = Date.now().toString();
+    
+    console.log('生成的验证码:', code);
+    
+    // 存储验证码（5分钟有效）
+    captchas.set(id, {
+        text: code.toLowerCase(),
+        expires: Date.now() + 5 * 60 * 1000
+    });
+
+    // 清理过期验证码
+    for (const [key, value] of captchas.entries()) {
+        if (value.expires < Date.now()) {
+            captchas.delete(key);
+        }
+    }
+
+    console.log('发送验证码响应');
+    res.json({
+        id: id,
+        code: code
+    });
+});
+
+// 验证验证码
+app.post('/api/verify-captcha', (req, res) => {
+    console.log('收到验证请求:', req.body);
+    const { id, code } = req.body;
+    const captcha = captchas.get(id);
+
+    if (!captcha) {
+        return res.status(400).json({ message: '验证码已过期' });
+    }
+
+    if (captcha.expires < Date.now()) {
+        captchas.delete(id);
+        return res.status(400).json({ message: '验证码已过期' });
+    }
+
+    if (code.toLowerCase() !== captcha.text) {
+        return res.status(400).json({ message: '验证码错误' });
+    }
+
+    captchas.delete(id);
+    res.json({ valid: true });
 });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`[${new Date().toISOString()}] 服务器启动在端口 ${PORT}`);
-    console.log('[CONFIG] 环境变量:', {
-        CORS_ORIGIN: process.env.CORS_ORIGIN,
-        SMTP_USER: process.env.SMTP_USER,
-        NODE_ENV: process.env.NODE_ENV
+    console.log(`服务器运行在端口 ${PORT}`);
+    console.log('验证码服务已启动');
+    console.log('CORS 配置:', {
+        origin: '*',
+        methods: ['GET', 'POST']
     });
 }); 

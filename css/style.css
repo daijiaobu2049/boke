@@ -212,4 +212,20 @@ body {
 
 #sendCodeBtn:disabled {
     cursor: not-allowed;
+}
+
+#captchaText {
+    border: 1px solid #dee2e6;
+    border-radius: 0 4px 4px 0;
+    padding: 8px 12px;
+    background: #fff;
+    transition: transform 0.2s;
+    font-family: monospace;
+    font-size: 1.2em;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+#captchaText:hover {
+    transform: scale(1.05);
 } 
