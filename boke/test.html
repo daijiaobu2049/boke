@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API 测试</title>
+</head>
+<body>
+    <h1>API 测试页面</h1>
+    <div id="result"></div>
+    <script>
+        async function runTests() {
+            const tests = [
+                // 测试 1: API 连接
+                async () => {
+                    const response = await fetch('https://boke-sand.vercel.app/api/posts');
+                    return response.ok;
+                },
+                // 测试 2: 登录功能
+                async () => {
+                    localStorage.setItem('adminToken', 'dummy-token');
+                    return localStorage.getItem('adminToken') === 'dummy-token';
+                },
+                // 测试 3: CORS 配置
+                async () => {
+                    const response = await fetch('https://boke-sand.vercel.app/api/posts', {
+                        method: 'OPTIONS'
+                    });
+                    return response.ok;
+                }
+            ];
+
+            const results = [];
+            for (let i = 0; i < tests.length; i++) {
+                try {
+                    const result = await tests[i]();
+                    results.push(`测试 ${i + 1}: ${result ? '通过' : '失败'}`);
+                } catch (error) {
+                    results.push(`测试 ${i + 1}: 错误 - ${error.message}`);
+                }
+            }
+
+            document.getElementById('result').innerHTML = results.join('<br>');
+        }
+
+        runTests();
+    </script>
+</body>
+</html> 

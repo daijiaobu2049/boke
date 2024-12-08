@@ -5,7 +5,7 @@ const API_BASE_URL = 'https://boke-sand.vercel.app/api';
 function checkAuth() {
     const token = localStorage.getItem('adminToken');
     if (!token) {
-        window.location.href = 'login.html';
+        window.location.href = './login.html';
     }
 }
 
@@ -165,5 +165,5 @@ async function deletePost(id) {
 // 退出登录
 function logout() {
     localStorage.removeItem('adminToken');
-    window.location.href = '/boke/admin/login.html';
+    window.location.href = './login.html';
 } 

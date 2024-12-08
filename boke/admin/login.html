@@ -50,7 +50,7 @@
             // 这里使用硬编码的管理员账号密码，实际应该使用后端验证
             if (username === 'admin' && password === 'admin123') {
                 localStorage.setItem('adminToken', 'dummy-token');
-                window.location.href = 'index.html';
+                window.location.href = './index.html';
             } else {
                 alert('用户名或密码错误');
             }
