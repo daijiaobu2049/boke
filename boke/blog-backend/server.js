@@ -31,6 +31,14 @@ let posts = [
 // 使用数据库存储文章数据，例如 MongoDB
 const Post = require('./models/Post');
 
+// 验证码存储
+const captchas = new Map();
+
+// 生成验证码
+function generateCaptcha() {
+    return Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
 // 获取所有文章
 app.get('/api/posts', (req, res) => {
     res.json(posts);
@@ -70,6 +78,34 @@ app.delete('/api/posts/:id', (req, res) => {
     
     posts.splice(index, 1);
     res.status(204).send();
+});
+
+// 获取验证码
+app.get('/api/captcha', (req, res) => {
+    const id = Date.now().toString();
+    const code = generateCaptcha();
+    captchas.set(id, {
+        code,
+        timestamp: Date.now()
+    });
+    res.json({ id, code });
+});
+
+// 验证验证码
+app.post('/api/verify-captcha', (req, res) => {
+    const { id, code } = req.body;
+    const captcha = captchas.get(id);
+    
+    if (!captcha) {
+        return res.status(400).json({ message: '验证码已过期' });
+    }
+    
+    if (captcha.code !== code) {
+        return res.status(400).json({ message: '验证码错误' });
+    }
+    
+    captchas.delete(id);
+    res.json({ valid: true });
 });
 
 const PORT = process.env.PORT || 5000;
