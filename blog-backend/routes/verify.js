@@ -17,11 +17,11 @@ function generateCode() {
 router.post('/send', async (req, res) => {
     try {
         const { email } = req.body;
-        console.log('收到发送验证码请求:', email);
+        console.log('收到验证码请求:', { email, timestamp: new Date().toISOString() });
 
         // 生成验证码
         const code = generateCode();
-        console.log('生成的验证码:', code);
+        console.log('生成验证码:', { code, email });
         
         // 存储验证码
         verificationCodes.set(email, {
